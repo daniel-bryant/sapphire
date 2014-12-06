@@ -1,3 +1,5 @@
+#include "main.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -5,6 +7,8 @@
 #include "lexer.yy.hpp"
 #include "lexglobal.h"
 #include "token.h"
+#include "sapp_math.h"
+#include "symtabs.h"
 using namespace std;
  
 void* ParseAlloc(void* (*allocProc)(size_t));
@@ -46,11 +50,57 @@ void parse(const string& commandLine) {
     yylex_destroy(scanner);
     ParseFree(gramParser, free);
 }
+
+/* declare the Class Symbol Table */
+vector<classrec> class_table;
+
+void init_symbol_table()
+{
+  class_table.push_back( SappMath::get_class_record() );
+}
  
 int main() {
-    string commandLine;
-    while (getline(cin, commandLine)) {
-        parse(commandLine);
+  init_symbol_table();
+  string commandLine;
+  while (getline(cin, commandLine)) {
+      parse(commandLine);
+  }
+  return 0;
+}
+
+double call_class_method(string class_name, string method_name, double arg)
+{
+  classrec class_record;
+  symrec function_record;
+
+  /* search for a class record with the given name */
+  for(auto &c_rec : class_table) {
+    if (c_rec.name == class_name) {
+      // record found, stop searching
+      class_record = c_rec;
+      break;
     }
+  }
+
+  /* if we found a class with the given name */
+  if (class_record.name == class_name) {
+    // search for the function record
+    for(auto &f_rec : class_record.fncttab) {
+      if ( f_rec.name == method_name) {
+        // function found, stop searching
+        function_record = f_rec;
+        break;
+      }
+    }
+  } else {
+    // class not found, return an error message?
+    return 0;
+  }
+
+  /* if we found a function with the given name */
+  if (function_record.name == method_name)
+    return function_record.fnctptr(arg);
+  else
+    // function not found, return an error message?
     return 0;
 }

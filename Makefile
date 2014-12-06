@@ -3,8 +3,8 @@ CXXFLAGS = -Wall -Wextra -Weffc++ -Wfloat-equal -Wshadow\
 	-Wwrite-strings -Wswitch-default -Wswitch-enum -Wparentheses\
 	-Woverloaded-virtual -pedantic
 
-shell: main.o gram.o lexer.yy.o
-	$(CXX) $(CXXFLAGS) main.o gram.o lexer.yy.o -o shell
+shell: main.o sapp_math.o gram.o lexer.yy.o
+	$(CXX) $(CXXFLAGS) main.o sapp_math.o gram.o lexer.yy.o -o shell
  
 main.o: main.cpp lexer.yy.hpp gram.hpp
  
