@@ -1,0 +1,12 @@
+Sapphire Test Suite
+
+How to set up tests:
+  All files place in this directory with an extension of .sp will be ran as sapphire tests.
+
+  All other extensions will be ignored.
+
+  To create a test, simply fill a .sp file with valid (or tobe valid) syntax.
+  For example:
+    if some_instance_var == 5
+      puts "var is equal to 5"
+    end

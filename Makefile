@@ -3,8 +3,8 @@ CXXFLAGS = -Wall -Wextra -Weffc++ -Wfloat-equal -Wshadow\
 	-Wwrite-strings -Wswitch-default -Wswitch-enum -Wparentheses\
 	-Woverloaded-virtual -pedantic
 
-shell: main.o sapp_math.o gram.o lexer.yy.o
-	$(CXX) $(CXXFLAGS) main.o sapp_math.o gram.o lexer.yy.o -o shell
+sapphire: main.o sapp_math.o gram.o lexer.yy.o
+	$(CXX) $(CXXFLAGS) main.o sapp_math.o gram.o lexer.yy.o -o sapphire
  
 main.o: main.cpp lexer.yy.hpp gram.hpp
  
@@ -36,4 +36,4 @@ clean:
 	rm -f lemon
 	rm -f lexer.yy.cpp lexer.yy.hpp
 	rm -f gram.cpp gram.hpp gram.out
-	rm -f shell
+	rm -f sapphire
