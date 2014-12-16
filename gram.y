@@ -12,37 +12,55 @@
   *valid = false;
 }
 
-%token_type {Token*}
+%token_type {const char*}
 %type expr {Token}
 %type proper_identity {Token}
 %type general_identity {Token}
 %extra_argument {bool* valid}
 
+%left POP_PARENS .
+%left METHOD_CALL .
+%left COMMA .
 %left PLUS MINUS .
 %left TIMES DIVIDE .
 %right EXP .
-%nonassoc PERIOD .
+/* PERIOD - Default precedence for method calls, may need to be moved later (for ex when 'def self.foobar' is added).
+ * If this is incompatible, we can give method calls an alternative precendence rule in brackets eg [METHOD_CALL]
+ */
+%left PERIOD .
 
 start ::= expr(A) .                  { if (A.str)
-                                         std::cout << "string: " << A.str << std::endl;
-                                       if (A.num)
-                                         std::cout << "result: " << A.num << std::endl; }
+                                         std::cout << "string: " << A.str << std::endl; }
 
-expr(A) ::= expr(B) PLUS expr(C) .   { A.num = B.num + C.num; }
-expr(A) ::= expr(B) MINUS expr(C) .  { A.num = B.num - C.num; }
-expr(A) ::= expr(B) TIMES expr(C) .  { A.num = B.num * C.num; }
-expr(A) ::= expr(B) DIVIDE expr(C) . { if (C.num != 0)
-                                         A.num = B.num / C.num;
-                                       else
-                                         std::cerr << "Error: divide by zero!" << std::endl; }
-expr(A) ::= expr(B) EXP expr(C) .    { A.num = pow(B.num, C.num); }
-expr(A) ::= MINUS expr(B) . [EXP]    { A.num = -B.num; }
+expr ::= expr PLUS expr .    { std::cout << "adding two expressions" << std::endl; }
+expr ::= expr MINUS expr .   { std::cout << "subtracting two expressions" << std::endl; }
+expr ::= expr TIMES expr .   { std::cout << "multiplying two expressions" << std::endl; }
+expr ::= expr DIVIDE expr .  { std::cout << "dividing two expressions" << std::endl; }
 
-expr(A) ::= LPAREN expr(B) RPAREN .  { A.num = B.num; }
+expr ::= expr EXP expr .     { std::cout << "exponent of two expressions" << std::endl; }
+expr ::= MINUS expr . [EXP]  { std::cout << "negating an expression" << std::endl; }
 
-expr(A) ::= expr PERIOD general_identity(C) LPAREN expr(D) RPAREN. { A.num = call_class_method("Math", std::string(C.str), D.num); }
+expr ::= LPAREN expr RPAREN . [POP_PARENS]  { std::cout << "popping parenthases" << std::endl; }
 
-expr(A) ::= NUM(B) .                 { A.num = B->num; }
-expr ::= STRING .                    {}
-expr(A) ::= PROPER_IDENTIFIER(B) . { A.str = strdup(B->str); }
-general_identity(A) ::= IDENTIFIER(B) .       { A.str = strdup(B->str); }
+/* method calling */
+
+/* with a list of args */
+expr ::= expr PERIOD general_identity(C) LPAREN expr_list RPAREN .  { std::cout << "method call with list of args in paren: " << C.str << std::endl; }
+expr ::= expr PERIOD general_identity(C) expr_list . [METHOD_CALL]  { std::cout << "method call with list of args: " << C.str << std::endl; }
+/* with a single arg */
+expr ::= expr PERIOD general_identity(C) LPAREN expr RPAREN .       { std::cout << "method call with single arg in paren: " << C.str << std::endl; }
+expr ::= expr PERIOD general_identity(C) expr . [METHOD_CALL]       { std::cout << "method call with single arg: " << C.str << std::endl; }
+/* with no args */
+expr ::= expr PERIOD general_identity(C) LPAREN RPAREN .            { std::cout << "method call with no args in paren: " << C.str << std::endl; }
+expr ::= expr PERIOD general_identity(C) .                          { std::cout << "method call with no args: " << C.str << std::endl; }
+
+/* arg list */
+expr_list ::= expr_list COMMA expr .   { std::cout << "expression list continued" << std::endl; }
+expr_list ::= expr COMMA expr .        { std::cout << "expression list started" << std::endl; }
+
+/* end method calling */
+
+expr ::= NUM(TOK_PTR) .                       { std::cout << "found number " << TOK_PTR << std::endl; }
+expr ::= STRING(TOK_PTR) .                    { std::cout << "found string " << TOK_PTR << std::endl; }
+expr ::= PROPER_IDENTIFIER(TOK_PTR) .         { std::cout << "found pronid " << TOK_PTR << std::endl; }
+general_identity(A) ::= IDENTIFIER(TOK_PTR) . { std::cout << "found genrid " << TOK_PTR << std::endl; A.str = strdup(TOK_PTR); }

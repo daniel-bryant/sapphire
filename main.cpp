@@ -16,7 +16,7 @@
 using namespace std;
  
 void* ParseAlloc(void* (*allocProc)(size_t));
-void Parse(void* parser, int token, Token* tokenInfo, bool* valid);
+void Parse(void* parser, int token, const char* tokenptr, bool* valid);
 void ParseFree(void* parser, void(*freeProc)(void*));
 YYSTYPE yylval;
  
@@ -34,10 +34,7 @@ void parse(const string& commandLine) {
     bool validParse = true;
     do {
         lexCode = yylex(scanner);
-        //cout << "lexCode: " << lexCode << ", yylval: " << yylval.dval << endl;
-        tokenInfo.num = yylval.dval;
-        tokenInfo.str = yylval.sval;
-        Parse(gramParser, lexCode, &tokenInfo, &validParse);
+        Parse(gramParser, lexCode, yylval.sval, &validParse);
     }
     while (lexCode > 0 && validParse);
  
@@ -121,8 +118,12 @@ void run_sapphire_test_suite() {
 
       if ( is_valid_filename(filename) ) {
         string spec_path = "spec/" + filename;
-        string spec_contents = get_file_contents(spec_path.c_str());
-        parse(spec_contents);
+        //string spec_contents = get_file_contents(spec_path.c_str());
+        ifstream file(spec_path.c_str());
+        string str;
+        while (getline(file, str)) {
+          parse(str);
+        }
       }
     }
 

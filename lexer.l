@@ -12,7 +12,7 @@
  
 %%
 
-"+"          {return PLUS;}
+"+"          {return PLUS; /* for all symbols we need to set sval to something or account for NULL in gram.y */}
 "-"          {return MINUS;}
 "*"          {return TIMES;}
 "/"          {return DIVIDE;}
@@ -20,13 +20,14 @@
 "("          {return LPAREN;}
 ")"          {return RPAREN;}
 "."          {return PERIOD;}
+","          {return COMMA;}
  
 [ \t\r]                 { col += (int) strlen(yytext); } /* ignore but count white space*/
 
 \n                      { /*col = 0; ++line; return NEWLINE;*/ }
 
 [0-9]+|[0-9]*\.[0-9]+   { col += (int) strlen(yytext);
-                          yylval.dval = atof(yytext);
+                          yylval.sval = strdup(yytext);
                           return NUM; }
 
 [a-z][A-Za-z0-9]*       { col += (int) strlen(yytext);
