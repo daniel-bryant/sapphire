@@ -20,11 +20,11 @@ void Parse(void* parser, int token, const char* tokenptr, bool* valid);
 void ParseFree(void* parser, void(*freeProc)(void*));
 YYSTYPE yylval;
  
-void parse(const string& commandLine) {
+void parse(istream& stream, int console) {
     // Set up the scanner
     yyscan_t scanner;
     yylex_init(&scanner);
-    YY_BUFFER_STATE bufferState = yy_scan_string(commandLine.c_str(), scanner);
+    YY_BUFFER_STATE bufferState;
  
     // Set up the parser
     void* gramParser = ParseAlloc(malloc);
@@ -32,23 +32,33 @@ void parse(const string& commandLine) {
     int lexCode;
     struct Token tokenInfo;
     bool validParse = true;
-    do {
-        lexCode = yylex(scanner);
-        Parse(gramParser, lexCode, yylval.sval, &validParse);
-    }
-    while (lexCode > 0 && validParse);
- 
-    if (-1 == lexCode) {
-        cerr << "The scanner encountered an error.\n";
-    }
+    string str;
 
-    if (!validParse) {
-        cerr << "The parser encountered an error.\n";
+    if (console) cout << "sapphire :" << console << " > ";
+    while ( getline(stream, str) ) {
+      bufferState = yy_scan_string(str.c_str(), scanner);
+
+      while ( validParse && (lexCode = yylex(scanner)) > 0 ) {
+          Parse(gramParser, lexCode, yylval.sval, &validParse);
+      }
+
+      Parse(gramParser, NEWLINE, "\n", &validParse);
+      if (console) cout << "sapphire :" << ++console << " > ";
+
+      if (-1 == lexCode) {
+          cerr << "The scanner encountered an error.\n";
+      }
+
+      if (!validParse) {
+          cerr << "The parser encountered an error.\n";
+      }
     }
  
+
     // Cleanup the scanner and parser
     yy_delete_buffer(bufferState, scanner);
     yylex_destroy(scanner);
+    Parse(gramParser, 0, "End of Input", &validParse);
     ParseFree(gramParser, free);
 }
 
@@ -120,10 +130,7 @@ void run_sapphire_test_suite() {
         string spec_path = "spec/" + filename;
         //string spec_contents = get_file_contents(spec_path.c_str());
         ifstream file(spec_path.c_str());
-        string str;
-        while (getline(file, str)) {
-          parse(str);
-        }
+        parse(file, 0);
       }
     }
 
@@ -135,15 +142,7 @@ void run_sapphire_test_suite() {
 
 void run_sapphire_console() {
   initialize_sapphire_lang();
-
-  string commandLine;
-  int commandCount = 0;
-
-  cout << "sapphire :" << ++commandCount << " > ";
-  while (getline(cin, commandLine)) {
-    parse(commandLine);
-    cout << "sapphire :" << ++commandCount << " > ";
-  }
+  parse(cin, 1);
 }
 
 int main(int argc, char *argv[]) {
