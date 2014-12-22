@@ -1,5 +1,3 @@
-#include "main.h"
-
 #include <cerrno>
 #include <cstdlib>
 #include <dirent.h> // for reading directories
@@ -11,8 +9,8 @@
 #include "lexer.yy.hpp"
 #include "lexglobal.h"
 #include "token.h"
-#include "sapp_math.h"
-#include "symtabs.h"
+#include "sapphire.h"
+
 using namespace std;
  
 void* ParseAlloc(void* (*allocProc)(size_t));
@@ -30,7 +28,7 @@ void parse(istream& stream, int console) {
     void* gramParser = ParseAlloc(malloc);
  
     int lexCode;
-    struct Token tokenInfo;
+    //struct Token tokenInfo;
     bool validParse = true;
     string str;
 
@@ -62,13 +60,10 @@ void parse(istream& stream, int console) {
     ParseFree(gramParser, free);
 }
 
-/* declare the Class Symbol Table */
-vector<classrec> class_table;
-
 void initialize_sapphire_lang()
 {
-  // initialize symbol table
-  class_table.push_back( SappMath::get_class_record() );
+  Init_class_hierarchy();
+  Init_Numeric();
 }
  
 void print_usage_help()
@@ -161,41 +156,4 @@ int main(int argc, char *argv[]) {
   }
 
   return 0;
-}
-
-double call_class_method(string class_name, string method_name, double arg)
-{
-  classrec class_record;
-  symrec function_record;
-
-  /* search for a class record with the given name */
-  for(auto &c_rec : class_table) {
-    if (c_rec.name == class_name) {
-      // record found, stop searching
-      class_record = c_rec;
-      break;
-    }
-  }
-
-  /* if we found a class with the given name */
-  if (class_record.name == class_name) {
-    // search for the function record
-    for(auto &f_rec : class_record.fncttab) {
-      if ( f_rec.name == method_name) {
-        // function found, stop searching
-        function_record = f_rec;
-        break;
-      }
-    }
-  } else {
-    // class not found, return an error message?
-    return 0;
-  }
-
-  /* if we found a function with the given name */
-  if (function_record.name == method_name)
-    return function_record.fnctptr(arg);
-  else
-    // function not found, return an error message?
-    return 0;
 }

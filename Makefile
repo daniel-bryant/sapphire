@@ -3,8 +3,10 @@ CXXFLAGS = -Wall -Wextra -Weffc++ -Wfloat-equal -Wshadow\
 	-Wwrite-strings -Wswitch-default -Wswitch-enum -Wparentheses\
 	-Woverloaded-virtual -pedantic
 
-sapphire: main.o sapp_math.o gram.o lexer.yy.o
-	$(CXX) $(CXXFLAGS) main.o sapp_math.o gram.o lexer.yy.o -o sapphire
+OBJS = main.o class.o variable.o numeric.o gram.o lexer.yy.o
+
+sapphire: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o sapphire
  
 main.o: main.cpp lexer.yy.hpp gram.hpp
  

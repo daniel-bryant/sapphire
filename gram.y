@@ -3,7 +3,6 @@
   #include <cassert>
   #include <iostream>
   #include <math.h>
-  #include "main.h"
   #include "token.h"
 }
 
