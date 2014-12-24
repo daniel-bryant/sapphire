@@ -45,8 +45,17 @@ void SClass::set_class(SClass *class_in)
   klass = class_in;
 }
 
-void SClass::define_instance_method(const char *method_name, function_ptr func)
+void SClass::sp_define_method(const char *method_name, function_ptr func)
 {
   std::string fname = std::string (method_name);
   method_table[fname] = func;
+}
+
+VALUE
+SClass::sp_call_method(VALUE receiver, const char *method_name, VALUE arg)
+{
+  std::string fname = std::string (method_name);
+  function_ptr func = method_table[fname];
+  VALUE retval = func(receiver, arg);
+  return retval;
 }
