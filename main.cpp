@@ -136,11 +136,11 @@ int main(int argc, char *argv[]) {
   alpha_ruby_init();
 
   /*VALUE v;
-  v = sp_funcall(sp_mMath, "sin", 1, (VALUE)4);
+  v = sp_funcall(rb_mMath, "sin", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;
-  v = sp_funcall(sp_mMath, "cos", 1, (VALUE)4);
+  v = sp_funcall(rb_mMath, "cos", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;
-  v = sp_funcall(sp_mMath, "tan", 1, (VALUE)4);
+  v = sp_funcall(rb_mMath, "tan", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;*/
 
   if (argc == 2) { // 2 args 'sapphire' and command

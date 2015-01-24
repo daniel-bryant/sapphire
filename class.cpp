@@ -1,9 +1,9 @@
 #include "sapphire.h"
 
-VALUE sp_cBasicObject;
-VALUE sp_cObject;
-VALUE sp_cModule;
-VALUE sp_cClass;
+VALUE rb_cBasicObject;
+VALUE rb_cObject;
+VALUE rb_cModule;
+VALUE rb_cClass;
 
 void
 rb_class_subclass_add(VALUE super, VALUE klass)
@@ -47,7 +47,7 @@ class_alloc(VALUE flags, VALUE klass)
 VALUE
 sp_class_boot(VALUE super)
 {
-  VALUE klass = class_alloc(T_CLASS, sp_cClass);
+  VALUE klass = class_alloc(T_CLASS, rb_cClass);
   RCLASS_SET_SUPER(klass, super);
   RCLASS_M_TBL_INIT(klass);
 
@@ -90,19 +90,19 @@ boot_defclass(const char *name, VALUE super)
   ID id = rb_intern(name);
 
   sp_name_class(obj, id);
-  sp_const_set((sp_cObject ? sp_cObject : obj), id, obj);
+  sp_const_set((rb_cObject ? rb_cObject : obj), id, obj);
   return obj;
 }
 
 void
 Init_class_hierarchy()
 {
-  sp_cBasicObject = boot_defclass("BasicObject", 0);
-  sp_cObject = boot_defclass("Object", sp_cBasicObject);
-  sp_cModule = boot_defclass("Module", sp_cObject);
-  sp_cClass = boot_defclass("Class", sp_cModule);
+  rb_cBasicObject = boot_defclass("BasicObject", 0);
+  rb_cObject = boot_defclass("Object", rb_cBasicObject);
+  rb_cModule = boot_defclass("Module", rb_cObject);
+  rb_cClass = boot_defclass("Class", rb_cModule);
 
-  sp_const_set(sp_cObject, rb_intern("BasicObject"), sp_cBasicObject);
+  sp_const_set(rb_cObject, rb_intern("BasicObject"), rb_cBasicObject);
   // RBASIC_SET_CLASS(rb_cClass, rb_cClass);
   // RBASIC_SET_CLASS(rb_cModule, rb_cClass);
   // RBASIC_SET_CLASS(rb_cObject, rb_cClass);
@@ -134,7 +134,7 @@ make_metaclass(VALUE klass)
 }
 
 VALUE
-sp_make_metaclass(VALUE obj)
+rb_make_metaclass(VALUE obj)
 {
   if (BUILTIN_TYPE(obj) == T_CLASS) {
     return make_metaclass(obj);
@@ -146,7 +146,7 @@ sp_make_metaclass(VALUE obj)
 VALUE
 sp_define_class_id(ID id, VALUE super)
 {
-  if (!super) super = sp_cObject;
+  if (!super) super = rb_cObject;
   VALUE klass = sp_class_new(super);
   // rb_make_metaclass(klass, RBASIC(super)->klass);
 
@@ -162,15 +162,15 @@ sp_define_class(const char *name, VALUE super)
   id = rb_intern(name);
   klass = sp_define_class_id(id, super);
   sp_name_class(klass, id);
-  sp_const_set(sp_cObject, id, klass);
+  sp_const_set(rb_cObject, id, klass);
 
   return klass;
 }
 
 VALUE
-sp_module_new()
+rb_module_new()
 {
-  VALUE mdl = class_alloc(0, sp_cModule);
+  VALUE mdl = class_alloc(0, rb_cModule);
   RCLASS_M_TBL_INIT(mdl);
   return mdl;
 }
@@ -178,7 +178,7 @@ sp_module_new()
 VALUE
 sp_define_module_id(ID id)
 {
-  VALUE module = sp_module_new();
+  VALUE module = rb_module_new();
   sp_name_class(module, id);
   return module;
 }
@@ -190,14 +190,14 @@ sp_define_module(const char *name)
   ID id;
 
   id = rb_intern(name);
-  if (sp_const_defined(sp_cObject, id)) {
-    module = sp_const_get(sp_cObject, id);
+  if (sp_const_defined(rb_cObject, id)) {
+    module = sp_const_get(rb_cObject, id);
     // if module is a Module
     return module;
     // else raise error
   }
   module = sp_define_module_id(id);
-  sp_const_set(sp_cObject, id, module);
+  sp_const_set(rb_cObject, id, module);
 
   return module;
 }
@@ -223,7 +223,7 @@ singleton_class_of(VALUE obj)
 
   klass = RBASIC(obj)->klass;
   if (true) {
-    klass = sp_make_metaclass(obj);
+    klass = rb_make_metaclass(obj);
   }
 
   return klass;

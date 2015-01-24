@@ -199,15 +199,15 @@ extern ID autoload, classpath, tmp_classpath, classid;
 extern std::vector<RString *> global_symbols;
 
 
-extern VALUE sp_cBasicObject;
-extern VALUE sp_cObject;
-extern VALUE sp_cModule;
-extern VALUE sp_cClass;
-extern VALUE sp_cFloat;
-extern VALUE sp_cFixnum;
-extern VALUE sp_mMath;
-extern VALUE sp_cString;
-extern VALUE sp_cSymbol;
+extern VALUE rb_cBasicObject;
+extern VALUE rb_cObject;
+extern VALUE rb_cModule;
+extern VALUE rb_cClass;
+extern VALUE rb_cFloat;
+extern VALUE rb_cFixnum;
+extern VALUE rb_mMath;
+extern VALUE rb_cString;
+extern VALUE rb_cSymbol;
 
 /* class.cpp */
 void Init_class_hierarchy();

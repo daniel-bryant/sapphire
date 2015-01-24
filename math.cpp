@@ -1,7 +1,7 @@
 #include "sapphire.h"
 #include <math.h>
 
-VALUE sp_mMath;
+VALUE rb_mMath;
 
 VALUE
 math_sin(VALUE obj, VALUE args [])
@@ -32,9 +32,9 @@ math_tan(VALUE obj, VALUE args [])
 void
 Init_Math()
 {
-  sp_mMath = sp_define_module("Math");
+  rb_mMath = sp_define_module("Math");
 
-  sp_define_module_function(sp_mMath, "sin", math_sin, 1);
-  sp_define_module_function(sp_mMath, "cos", math_cos, 1);
-  sp_define_module_function(sp_mMath, "tan", math_tan, 1);
+  sp_define_module_function(rb_mMath, "sin", math_sin, 1);
+  sp_define_module_function(rb_mMath, "cos", math_cos, 1);
+  sp_define_module_function(rb_mMath, "tan", math_tan, 1);
 }

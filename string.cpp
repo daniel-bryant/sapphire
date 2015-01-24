@@ -1,7 +1,7 @@
 #include "sapphire.h"
 
-VALUE sp_cString;
-VALUE sp_cSymbol;
+VALUE rb_cString;
+VALUE rb_cSymbol;
 
 VALUE
 str_alloc(VALUE klass)
@@ -36,7 +36,7 @@ setup_fake_str(struct RString *fake_str, const char *name, long len, int enc)
 
   // ENCODING_SET_INLINED((VALUE)fake_str, encidx);
   
-  RBASIC_SET_CLASS_RAW((VALUE)fake_str, sp_cString);
+  RBASIC_SET_CLASS_RAW((VALUE)fake_str, rb_cString);
   fake_str->len = len;
   fake_str->ptr = (char *)name;
   // fake_str->as.heap.aux.capa = len; TODO add capa
@@ -54,7 +54,7 @@ rb_enc_str_new(const char *ptr, long len, int enc)
 {
   VALUE str;
 
-  str = str_new0(sp_cString, ptr, len, enc);
+  str = str_new0(rb_cString, ptr, len, enc);
 
   return str;
 }
@@ -62,8 +62,8 @@ rb_enc_str_new(const char *ptr, long len, int enc)
 void
 Init_String()
 {
-  sp_cString  = sp_define_class("String", sp_cObject);
+  rb_cString  = sp_define_class("String", rb_cObject);
 
 
-  sp_cSymbol = sp_define_class("Symbol", sp_cObject);
+  rb_cSymbol = sp_define_class("Symbol", rb_cObject);
 }
