@@ -59,12 +59,6 @@ void parse(istream& stream, int console) {
     Parse(gramParser, 0, "End of Input", &validParse);
     ParseFree(gramParser, free);
 }
-
-void initialize_sapphire_lang()
-{
-  Init_class_hierarchy();
-  Init_Numeric();
-}
  
 void print_usage_help()
 {
@@ -110,7 +104,6 @@ string get_file_contents(const char *filename) {
 }
 
 void run_sapphire_test_suite() {
-  initialize_sapphire_lang();
   cout << "Sapphire Test Suite" << endl;
 
   DIR *dpdf;
@@ -136,11 +129,20 @@ void run_sapphire_test_suite() {
 }
 
 void run_sapphire_console() {
-  initialize_sapphire_lang();
   parse(cin, 1);
 }
 
 int main(int argc, char *argv[]) {
+  alpha_ruby_init();
+
+  /*VALUE v;
+  v = sp_funcall(sp_mMath, "sin", 1, (VALUE)4);
+  cout << "result: " << (int)v << endl;
+  v = sp_funcall(sp_mMath, "cos", 1, (VALUE)4);
+  cout << "result: " << (int)v << endl;
+  v = sp_funcall(sp_mMath, "tan", 1, (VALUE)4);
+  cout << "result: " << (int)v << endl;*/
+
   if (argc == 2) { // 2 args 'sapphire' and command
     if (strcmp(argv[1], "console") == 0) {
       run_sapphire_console();

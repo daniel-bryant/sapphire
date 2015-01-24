@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -Wextra -Weffc++ -Wfloat-equal -Wshadow\
 	-Wwrite-strings -Wswitch-default -Wswitch-enum -Wparentheses\
 	-Woverloaded-virtual -pedantic
 
-OBJS = main.o class.o variable.o numeric.o gram.o lexer.yy.o
+OBJS = main.o class.o variable.o numeric.o math.o symbol.o string.o vm_method.o object.o gram.o lexer.yy.o
 
 sapphire: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o sapphire
