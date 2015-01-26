@@ -16,6 +16,38 @@ Init_var_tables()
   classid = rb_intern_const("__classid__");
 }
 
+VALUE
+rb_const_get_0(VALUE klass, ID id)
+{
+  // TODO fill this in
+  return RCLASS_CONST_TBL(klass)[id];
+}
+
+VALUE
+rb_const_get(VALUE klass, ID id)
+{
+  return rb_const_get_0(klass, id);
+}
+
+void
+rb_const_set(VALUE klass, ID id, VALUE val)
+{
+  // TODO obviously fill this method in, but this is thei MOST basic implementation for now.
+  // This is equivalent to 'st_insert(RCLASS_CONST_TBL(klass), (st_data_t)id, (st_data_t)ce);'
+  // in Ruby's source.
+  RCLASS_CONST_TBL(klass)[id] = val;
+}
+
+void
+rb_define_const(VALUE klass, const char *name, VALUE val)
+{
+  ID id = rb_intern(name);
+  // if (!rb_is_const_id(id)) {
+  //   rb_warn("rb_define_const: invalid name `%s' for constant", name);
+  // }
+  rb_const_set(klass, id, val);
+}
+
 void
 sp_const_set(VALUE klass, VALUE id, VALUE val)
 {

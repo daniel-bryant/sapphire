@@ -239,6 +239,8 @@ ID rb_intern2(const char *name, long len);
 
 /* variable.cpp */
 void Init_var_tables();
+VALUE rb_const_get(VALUE klass, ID id);
+void rb_define_const(VALUE klass, const char *name, VALUE val);
 void sp_const_set(VALUE klass, VALUE id, VALUE val);
 VALUE sp_const_get(VALUE klass, VALUE id);
 bool sp_const_defined(VALUE klass, VALUE id);
@@ -276,6 +278,7 @@ inline VALUE sp_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
 /* in the ruby source, this is in internal.h */
 #define RCLASS_EXT(c) (RCLASS(c)->ptr)
 #define RCLASS_M_TBL_WRAPPER(c) (RCLASS(c)->m_tbl_wrapper)
+#define RCLASS_CONST_TBL(c) (RCLASS_EXT(c)->const_tbl)
 inline void
 RCLASS_M_TBL_INIT(VALUE c)
 {

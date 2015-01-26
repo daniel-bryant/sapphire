@@ -2,6 +2,13 @@
 
 std::vector<RString *> global_symbols;
 
+ID
+intern_str(VALUE str)
+{
+  global_symbols.push_back(RSTRING(str));
+  return (ID)RSTRING(str); // TODO turn this into str2sym
+}
+
 VALUE
 lookup_str_sym(VALUE str)
 {
@@ -12,7 +19,7 @@ lookup_str_sym(VALUE str)
   }
 
   if (it != global_symbols.end()) {
-    VALUE sym = (VALUE)&(*it); //http://stackoverflow.com/questions/743055/convert-iterator-to-pointer
+    VALUE sym = (VALUE)(*it);
     return sym;
   } else {
     return (VALUE)0;
@@ -20,18 +27,9 @@ lookup_str_sym(VALUE str)
 }
 
 ID
-intern_str(VALUE str)
-{
-  global_symbols.push_back(RSTRING(str));
-  return (ID)RSTRING(str); // TODO this isn't right
-  //return (VALUE)&global_symbols.back();
-}
-
-ID
 rb_intern3(const char *name, long len, int enc)
 {
   VALUE sym;
-  //RString *fake_str = new RString ();
   RString fake_str = {{0, 0}, 0, 0};
   VALUE str = rb_setup_fake_str(&fake_str, name, len, enc);
   // OBJ_FREEZE(str);

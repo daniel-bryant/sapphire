@@ -135,6 +135,9 @@ void run_sapphire_console() {
 int main(int argc, char *argv[]) {
   alpha_ruby_init();
 
+  VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
+  printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
+
   /*VALUE v;
   v = sp_funcall(rb_mMath, "sin", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;
