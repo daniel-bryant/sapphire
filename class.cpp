@@ -204,7 +204,7 @@ rb_define_module(const char *name)
 
 // Methods
 void
-sp_define_method(VALUE klass, const char *name, function_ptr func, int argc)
+rb_define_method(VALUE klass, const char *name, function_ptr func, int argc)
 {
   sp_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PUBLIC);
 }
@@ -232,7 +232,7 @@ singleton_class_of(VALUE obj)
 void
 sp_define_singleton_method(VALUE obj, const char *name, function_ptr func, int argc)
 {
-  sp_define_method(singleton_class_of(obj), name, func, argc);
+  rb_define_method(singleton_class_of(obj), name, func, argc);
 }
 
 void

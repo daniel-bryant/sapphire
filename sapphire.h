@@ -239,7 +239,7 @@ void rb_class_subclass_add(VALUE super, VALUE klass);
 void rb_class_remove_from_super_subclasses(VALUE klass);
 VALUE rb_define_class(const char *name, VALUE super);
 VALUE rb_define_module(const char *name);
-void sp_define_method(VALUE klass, const char *name, function_ptr func, int argc);
+void rb_define_method(VALUE klass, const char *name, function_ptr func, int argc);
 void rb_define_module_function(VALUE module, const char *name, function_ptr func, int argc);
 
 /* math.cpp */
