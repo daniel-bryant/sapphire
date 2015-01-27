@@ -144,7 +144,7 @@ rb_make_metaclass(VALUE obj)
 }
 
 VALUE
-sp_define_class_id(ID id, VALUE super)
+rb_define_class_id(ID id, VALUE super)
 {
   if (!super) super = rb_cObject;
   VALUE klass = sp_class_new(super);
@@ -154,13 +154,13 @@ sp_define_class_id(ID id, VALUE super)
 }
 
 VALUE
-sp_define_class(const char *name, VALUE super)
+rb_define_class(const char *name, VALUE super)
 {
   VALUE klass;
   VALUE id;
 
   id = rb_intern(name);
-  klass = sp_define_class_id(id, super);
+  klass = rb_define_class_id(id, super);
   sp_name_class(klass, id);
   sp_const_set(rb_cObject, id, klass);
 
@@ -176,7 +176,7 @@ rb_module_new()
 }
 
 VALUE
-sp_define_module_id(ID id)
+rb_define_module_id(ID id)
 {
   VALUE module = rb_module_new();
   sp_name_class(module, id);
@@ -184,7 +184,7 @@ sp_define_module_id(ID id)
 }
 
 VALUE
-sp_define_module(const char *name)
+rb_define_module(const char *name)
 {
   VALUE module;
   ID id;
@@ -196,7 +196,7 @@ sp_define_module(const char *name)
     return module;
     // else raise error
   }
-  module = sp_define_module_id(id);
+  module = rb_define_module_id(id);
   sp_const_set(rb_cObject, id, module);
 
   return module;
@@ -236,7 +236,7 @@ sp_define_singleton_method(VALUE obj, const char *name, function_ptr func, int a
 }
 
 void
-sp_define_module_function(VALUE module, const char *name, function_ptr func, int argc)
+rb_define_module_function(VALUE module, const char *name, function_ptr func, int argc)
 {
   sp_define_private_method(module, name, func, argc);
   sp_define_singleton_method(module, name, func, argc);

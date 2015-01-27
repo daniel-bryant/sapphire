@@ -5,8 +5,10 @@ std::vector<RString *> global_symbols;
 ID
 intern_str(VALUE str)
 {
+  ID index = global_symbols.size();
   global_symbols.push_back(RSTRING(str));
-  return (ID)RSTRING(str); // TODO turn this into str2sym
+  // TODO handle overflow of symbol IDs
+  return index;
 }
 
 VALUE
@@ -19,7 +21,8 @@ lookup_str_sym(VALUE str)
   }
 
   if (it != global_symbols.end()) {
-    VALUE sym = (VALUE)(*it);
+    long index = it - global_symbols.begin();
+    VALUE sym = (VALUE)(((long)(index)) << 8 | SYMBOL_FLAG);
     return sym;
   } else {
     return (VALUE)0;
@@ -36,7 +39,7 @@ rb_intern3(const char *name, long len, int enc)
 
   sym = lookup_str_sym(str);
   if (sym) {
-    return (ID)sym;
+    return (ID)(sym >> 8);
   } else {
     str = rb_enc_str_new(name, len, enc); /* make true string */
     return intern_str(str);

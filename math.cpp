@@ -32,11 +32,11 @@ math_tan(VALUE obj, VALUE args [])
 void
 Init_Math()
 {
-  rb_mMath = sp_define_module("Math");
+  rb_mMath = rb_define_module("Math");
 
   rb_define_const(rb_mMath, "THIRTYSEVEN", (VALUE)37);
 
-  sp_define_module_function(rb_mMath, "sin", math_sin, 1);
-  sp_define_module_function(rb_mMath, "cos", math_cos, 1);
-  sp_define_module_function(rb_mMath, "tan", math_tan, 1);
+  rb_define_module_function(rb_mMath, "sin", math_sin, 1);
+  rb_define_module_function(rb_mMath, "cos", math_cos, 1);
+  rb_define_module_function(rb_mMath, "tan", math_tan, 1);
 }

@@ -62,8 +62,8 @@ rb_enc_str_new(const char *ptr, long len, int enc)
 void
 Init_String()
 {
-  rb_cString  = sp_define_class("String", rb_cObject);
+  rb_cString  = rb_define_class("String", rb_cObject);
 
 
-  rb_cSymbol = sp_define_class("Symbol", rb_cObject);
+  rb_cSymbol = rb_define_class("Symbol", rb_cObject);
 }

@@ -1,5 +1,10 @@
 #include "sapphire.h"
 
+VALUE rb_mKernel;
+VALUE rb_cFalseClass;
+VALUE rb_cNilClass;
+VALUE rb_cTrueClass;
+
 VALUE
 rb_class_real(VALUE cl)
 {
@@ -8,4 +13,18 @@ rb_class_real(VALUE cl)
   //  cl = RCLASS_SUPER(cl);
   //}
   return cl;
+}
+
+void
+Init_Object()
+{
+  Init_class_hierarchy();
+
+  rb_mKernel = rb_define_module("Kernel");
+
+  rb_cNilClass = rb_define_class("NilClass", rb_cObject);
+
+  rb_cTrueClass = rb_define_class("TrueClass", rb_cObject);
+
+  rb_cFalseClass = rb_define_class("FalseClass", rb_cObject);
 }

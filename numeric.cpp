@@ -42,9 +42,9 @@ fix_divide(VALUE self, VALUE args [])
 void
 Init_Numeric()
 {
-  rb_cFloat = sp_define_class("Float", rb_cObject);
+  rb_cFloat = rb_define_class("Float", rb_cObject);
 
-  rb_cFixnum = sp_define_class("Fixnum", rb_cObject);
+  rb_cFixnum = rb_define_class("Fixnum", rb_cObject);
   sp_define_method(rb_cFixnum, "+", fix_plus, 1);
   sp_define_method(rb_cFixnum, "-", fix_minus, 1);
   sp_define_method(rb_cFixnum, "*", fix_times, 1);

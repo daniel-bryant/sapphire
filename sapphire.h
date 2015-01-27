@@ -8,18 +8,38 @@
 
 typedef uintptr_t VALUE;
 typedef uintptr_t ID;
+#define SIGNED_VALUE intptr_t
 
 enum ruby_special_consts {
-  RUBY_Qfalse = 0x00,   /* ...0000 0000 */
-  RUBY_Qtrue  = 0x14,   /* ...0001 0100 */
-  RUBY_Qnil   = 0x08,   /* ...0000 1000 */
-  RUBY_Qundef = 0x34,   /* ...0011 0100 */
+    RUBY_Qfalse = 0,		/* ...0000 0000 */
+    RUBY_Qtrue  = 2,		/* ...0000 0010 */
+    RUBY_Qnil   = 4,		/* ...0000 0100 */
+    RUBY_Qundef = 6,		/* ...0000 0110 */
+
+    RUBY_IMMEDIATE_MASK = 0x03,
+    RUBY_FIXNUM_FLAG    = 0x01,	/* ...xxxx xxx1 */
+    RUBY_FLONUM_MASK    = 0x00,	/* any values ANDed with FLONUM_MASK cannot be FLONUM_FLAG */
+    RUBY_FLONUM_FLAG    = 0x02,
+    RUBY_SYMBOL_FLAG    = 0x0e,	/* ...0000 1110 */
+
+    RUBY_SPECIAL_SHIFT  = 8
 };
 
 #define Qfalse ((VALUE)RUBY_Qfalse)
 #define Qtrue  ((VALUE)RUBY_Qtrue)
 #define Qnil   ((VALUE)RUBY_Qnil)
 #define Qundef ((VALUE)RUBY_Qundef) /* undefined value for placeholder */
+#define IMMEDIATE_MASK RUBY_IMMEDIATE_MASK
+#define FIXNUM_FLAG RUBY_FIXNUM_FLAG
+#define SYMBOL_FLAG RUBY_SYMBOL_FLAG
+
+#define RTEST(v) !(((VALUE)(v) & ~Qnil) == 0)
+#define NIL_P(v) !((VALUE)(v) != Qnil)
+
+#define FIXNUM_P(f) (((int)(SIGNED_VALUE)(f))&FIXNUM_FLAG)
+#define IMMEDIATE_P(x) ((VALUE)(x) & IMMEDIATE_MASK)
+
+#define STATIC_SYM_P(x) (((VALUE)(x)&~((~(VALUE)0)<<RUBY_SPECIAL_SHIFT))==SYMBOL_FLAG)
 
 enum ruby_value_type {
     RUBY_T_NONE   = 0x00,
@@ -198,25 +218,29 @@ extern ID autoload, classpath, tmp_classpath, classid;
 
 extern std::vector<RString *> global_symbols;
 
+extern VALUE rb_mKernel;
+extern VALUE rb_mMath;
 
 extern VALUE rb_cBasicObject;
 extern VALUE rb_cObject;
 extern VALUE rb_cModule;
 extern VALUE rb_cClass;
+extern VALUE rb_cFalseClass;
 extern VALUE rb_cFloat;
 extern VALUE rb_cFixnum;
-extern VALUE rb_mMath;
+extern VALUE rb_cNilClass;
 extern VALUE rb_cString;
 extern VALUE rb_cSymbol;
+extern VALUE rb_cTrueClass;
 
 /* class.cpp */
 void Init_class_hierarchy();
 void rb_class_subclass_add(VALUE super, VALUE klass);
 void rb_class_remove_from_super_subclasses(VALUE klass);
-VALUE sp_define_class(const char *name, VALUE super);
-VALUE sp_define_module(const char *name);
+VALUE rb_define_class(const char *name, VALUE super);
+VALUE rb_define_module(const char *name);
 void sp_define_method(VALUE klass, const char *name, function_ptr func, int argc);
-void sp_define_module_function(VALUE module, const char *name, function_ptr func, int argc);
+void rb_define_module_function(VALUE module, const char *name, function_ptr func, int argc);
 
 /* math.cpp */
 void Init_Math();
@@ -226,6 +250,7 @@ void Init_Numeric();
 VALUE sp_float_new(double d);
 
 /* object.cpp */
+void Init_Object();
 VALUE rb_class_real(VALUE cl);
 
 /* string.cpp */
@@ -258,11 +283,13 @@ void sp_add_method_cfunc(VALUE klass, ID mid, function_ptr func, int argc, rb_me
 
 inline void alpha_ruby_init()
 {
-  Init_class_hierarchy();
+  Init_var_tables();
+
+  Init_Object();
+
   Init_Math();
   Init_Numeric();
   Init_String();
-  Init_var_tables();
 }
 
 inline VALUE sp_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
@@ -301,5 +328,36 @@ RCLASS_SET_SUPER(VALUE klass, VALUE super)
 }
 
 VALUE rb_setup_fake_str(struct RString *fake_str, const char *name, long len, int enc);
+
+inline VALUE
+rb_class_of(VALUE obj)
+{
+  if (IMMEDIATE_P(obj)) {
+    if (FIXNUM_P(obj)) return rb_cFixnum;
+    //if (FLONUM_P(obj)) return rb_cFloat;
+    if (obj == Qtrue)  return rb_cTrueClass;
+    if (STATIC_SYM_P(obj)) return rb_cSymbol;
+  } else if (!RTEST(obj)) {
+    if (obj == Qnil)   return rb_cNilClass;
+    if (obj == Qfalse) return rb_cFalseClass;
+  }
+  return RBASIC(obj)->klass;
+}
+
+inline int
+rb_type(VALUE obj)
+{
+  if (IMMEDIATE_P(obj)) {
+    if (FIXNUM_P(obj)) return T_FIXNUM;
+    //if (FLONUM_P(obj)) return T_FLOAT; // TODO we don't have floats defined yet
+    if (obj == Qtrue)  return T_TRUE;
+    if (STATIC_SYM_P(obj)) return T_SYMBOL;
+    if (obj == Qundef) return T_UNDEF;
+  } else if (!RTEST(obj)) {
+    if (obj == Qnil)   return T_NIL;
+    if (obj == Qfalse) return T_FALSE;
+  }
+  return BUILTIN_TYPE(obj);
+}
 
 #endif
