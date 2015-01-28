@@ -38,11 +38,11 @@ in ::= in expression NEWLINE .
 expression ::= expr(A) .             { if (A)
                                          std::cout << "result: " << value_to_int(A) << std::endl; }
 
-expr(A) ::= expr    PLUS   expr .  { std::cout << "\tadding two expressions" << std::endl;         A = sp_funcall(int_to_value(2), "+", 1, int_to_value(2)); }
+expr(A) ::= expr    PLUS   expr .  { std::cout << "\tadding two expressions" << std::endl;         A = rb_funcall(int_to_value(2), "+", 1, int_to_value(2)); }
 /* the above is a TEMP fix. Since we have things like 'Math.sin(3) + 3' in the test suite, but Math.sin not implemented attempting a "+" function call with result in a seg fault */
-expr(A) ::= expr(B) MINUS  expr(C) .  { std::cout << "\tsubtracting two expressions" << std::endl; A = sp_funcall(B, "-", 1, C); }
-expr(A) ::= expr(B) TIMES  expr(C) .  { std::cout << "\tmultiplying two expressions" << std::endl; A = sp_funcall(B, "*", 1, C); }
-expr(A) ::= expr(B) DIVIDE expr(C) .  { std::cout << "\tdividing two expressions" << std::endl;    A = sp_funcall(B, "/", 1, C); }
+expr(A) ::= expr(B) MINUS  expr(C) .  { std::cout << "\tsubtracting two expressions" << std::endl; A = rb_funcall(B, "-", 1, C); }
+expr(A) ::= expr(B) TIMES  expr(C) .  { std::cout << "\tmultiplying two expressions" << std::endl; A = rb_funcall(B, "*", 1, C); }
+expr(A) ::= expr(B) DIVIDE expr(C) .  { std::cout << "\tdividing two expressions" << std::endl;    A = rb_funcall(B, "/", 1, C); }
 
 expr ::= expr EXP expr .     { std::cout << "\texponent of two expressions" << std::endl; }
 expr ::= MINUS expr . [EXP]  { std::cout << "\tnegating an expression" << std::endl; }

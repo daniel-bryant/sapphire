@@ -48,33 +48,21 @@ rb_define_const(VALUE klass, const char *name, VALUE val)
   rb_const_set(klass, id, val);
 }
 
-void
-sp_const_set(VALUE klass, VALUE id, VALUE val)
-{
-  RCLASS_EXT(klass)->const_tbl[id] = val;
-}
-
-VALUE
-sp_const_get(VALUE klass, VALUE id)
-{
-  return RCLASS_EXT(klass)->const_tbl[id];
-}
-
 bool
-sp_const_defined(VALUE klass, VALUE id)
+rb_const_defined(VALUE klass, VALUE id)
 {
   id_value_map::iterator it = RCLASS_EXT(klass)->const_tbl.find(id);
   return it != RCLASS_EXT(klass)->const_tbl.end();
 }
 
 void
-sp_name_class(VALUE klass, ID id)
+rb_name_class(VALUE klass, ID id)
 {
   //TODO fully implement this when we have ivars
   RCLASS_EXT(klass)->iv_tbl[classid] = id;
 }
 
-int sp_st_insert_id_and_value(VALUE obj, id_value_map *tbl, ID key, VALUE value)
+int rb_st_insert_id_and_value(VALUE obj, id_value_map *tbl, ID key, VALUE value)
 {
   (*tbl)[key] = value;
   return 0;

@@ -306,11 +306,11 @@ ID rb_intern2(const char *name, long len);
 void Init_var_tables();
 VALUE rb_const_get(VALUE klass, ID id);
 void rb_define_const(VALUE klass, const char *name, VALUE val);
-void sp_const_set(VALUE klass, VALUE id, VALUE val);
-VALUE sp_const_get(VALUE klass, VALUE id);
-bool sp_const_defined(VALUE klass, VALUE id);
-void sp_name_class(VALUE klass, ID id);
-int sp_st_insert_id_and_value(VALUE obj, id_value_map *tbl, ID key, VALUE value);
+void rb_const_set(VALUE klass, VALUE id, VALUE val);
+VALUE rb_const_get(VALUE klass, VALUE id);
+bool rb_const_defined(VALUE klass, VALUE id);
+void rb_name_class(VALUE klass, ID id);
+int rb_st_insert_id_and_value(VALUE obj, id_value_map *tbl, ID key, VALUE value);
 
 /* vm_method.cpp */
 /* possibly move the stuff below to method.h */
@@ -319,7 +319,7 @@ typedef enum {
   NOEX_NOSUPER   = 0x01,
   NOEX_PRIVATE   = 0x02
 } rb_method_flag_t;
-void sp_add_method_cfunc(VALUE klass, ID mid, function_ptr func, int argc, rb_method_flag_t noex);
+void rb_add_method_cfunc(VALUE klass, ID mid, function_ptr func, int argc, rb_method_flag_t noex);
 
 inline void alpha_ruby_init()
 {
@@ -332,11 +332,11 @@ inline void alpha_ruby_init()
   Init_String();
 }
 
-inline VALUE sp_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
+inline VALUE rb_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
 {
   /* get class of receiver */
 
-  // VALUE retval = ((SClass *) receiver)->sp_call_method(receiver, name, arg);
+  // VALUE retval = ((SClass *) receiver)->rb_call_method(receiver, name, arg);
   VALUE retval = 0;
 
   return retval;

@@ -45,7 +45,7 @@ class_alloc(VALUE flags, VALUE klass)
 }
 
 VALUE
-sp_class_boot(VALUE super)
+rb_class_boot(VALUE super)
 {
   VALUE klass = class_alloc(T_CLASS, rb_cClass);
   RCLASS_SET_SUPER(klass, super);
@@ -62,7 +62,7 @@ rb_singleton_class_attached(VALUE klass, VALUE obj)
     //if (!RCLASS_IV_TBL(klass)) {
       //RCLASS_IV_TBL(klass) = st_init_numtable();
     //}
-    sp_st_insert_id_and_value(klass, &(RCLASS_EXT(klass)->iv_tbl), rb_intern("id__attached__"), obj);
+    rb_st_insert_id_and_value(klass, &(RCLASS_EXT(klass)->iv_tbl), rb_intern("id__attached__"), obj);
   //}
 }
 
@@ -73,7 +73,7 @@ VALUE
 make_singleton_class(VALUE obj)
 {
   VALUE orig_class = RBASIC(obj)->klass;
-  VALUE klass = sp_class_boot(orig_class);
+  VALUE klass = rb_class_boot(orig_class);
 
   FL_SET(klass, FL_SINGLETON);
   RBASIC_SET_CLASS(obj, klass);
@@ -86,11 +86,11 @@ make_singleton_class(VALUE obj)
 VALUE
 boot_defclass(const char *name, VALUE super)
 {
-  VALUE obj = sp_class_boot(super);
+  VALUE obj = rb_class_boot(super);
   ID id = rb_intern(name);
 
-  sp_name_class(obj, id);
-  sp_const_set((rb_cObject ? rb_cObject : obj), id, obj);
+  rb_name_class(obj, id);
+  rb_const_set((rb_cObject ? rb_cObject : obj), id, obj);
   return obj;
 }
 
@@ -102,7 +102,7 @@ Init_class_hierarchy()
   rb_cModule = boot_defclass("Module", rb_cObject);
   rb_cClass = boot_defclass("Class", rb_cModule);
 
-  sp_const_set(rb_cObject, rb_intern("BasicObject"), rb_cBasicObject);
+  rb_const_set(rb_cObject, rb_intern("BasicObject"), rb_cBasicObject);
   // RBASIC_SET_CLASS(rb_cClass, rb_cClass);
   // RBASIC_SET_CLASS(rb_cModule, rb_cClass);
   // RBASIC_SET_CLASS(rb_cObject, rb_cClass);
@@ -110,18 +110,18 @@ Init_class_hierarchy()
 }
 
 VALUE
-sp_class_new(VALUE super)
+rb_class_new(VALUE super)
 {
   // Check_Type(super, T_CLASS);
   // rb_check_inheritable(super);
-  return sp_class_boot(super);
+  return rb_class_boot(super);
 }
 
 VALUE
 make_metaclass(VALUE klass)
 {
   VALUE super;
-  VALUE metaclass = sp_class_boot(Qundef);
+  VALUE metaclass = rb_class_boot(Qundef);
 
   FL_SET(metaclass, FL_SINGLETON);
   rb_singleton_class_attached(metaclass, klass);
@@ -147,7 +147,7 @@ VALUE
 rb_define_class_id(ID id, VALUE super)
 {
   if (!super) super = rb_cObject;
-  VALUE klass = sp_class_new(super);
+  VALUE klass = rb_class_new(super);
   // rb_make_metaclass(klass, RBASIC(super)->klass);
 
   return klass;
@@ -161,8 +161,8 @@ rb_define_class(const char *name, VALUE super)
 
   id = rb_intern(name);
   klass = rb_define_class_id(id, super);
-  sp_name_class(klass, id);
-  sp_const_set(rb_cObject, id, klass);
+  rb_name_class(klass, id);
+  rb_const_set(rb_cObject, id, klass);
 
   return klass;
 }
@@ -179,7 +179,7 @@ VALUE
 rb_define_module_id(ID id)
 {
   VALUE module = rb_module_new();
-  sp_name_class(module, id);
+  rb_name_class(module, id);
   return module;
 }
 
@@ -190,14 +190,14 @@ rb_define_module(const char *name)
   ID id;
 
   id = rb_intern(name);
-  if (sp_const_defined(rb_cObject, id)) {
-    module = sp_const_get(rb_cObject, id);
+  if (rb_const_defined(rb_cObject, id)) {
+    module = rb_const_get(rb_cObject, id);
     // if module is a Module
     return module;
     // else raise error
   }
   module = rb_define_module_id(id);
-  sp_const_set(rb_cObject, id, module);
+  rb_const_set(rb_cObject, id, module);
 
   return module;
 }
@@ -206,13 +206,13 @@ rb_define_module(const char *name)
 void
 rb_define_method(VALUE klass, const char *name, function_ptr func, int argc)
 {
-  sp_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PUBLIC);
+  rb_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PUBLIC);
 }
 
 void
-sp_define_private_method(VALUE klass, const char *name, function_ptr func, int argc)
+rb_define_private_method(VALUE klass, const char *name, function_ptr func, int argc)
 {
-  sp_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PRIVATE);
+  rb_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PRIVATE);
 }
 
 
@@ -230,7 +230,7 @@ singleton_class_of(VALUE obj)
 }
 
 void
-sp_define_singleton_method(VALUE obj, const char *name, function_ptr func, int argc)
+rb_define_singleton_method(VALUE obj, const char *name, function_ptr func, int argc)
 {
   rb_define_method(singleton_class_of(obj), name, func, argc);
 }
@@ -238,6 +238,6 @@ sp_define_singleton_method(VALUE obj, const char *name, function_ptr func, int a
 void
 rb_define_module_function(VALUE module, const char *name, function_ptr func, int argc)
 {
-  sp_define_private_method(module, name, func, argc);
-  sp_define_singleton_method(module, name, func, argc);
+  rb_define_private_method(module, name, func, argc);
+  rb_define_singleton_method(module, name, func, argc);
 }

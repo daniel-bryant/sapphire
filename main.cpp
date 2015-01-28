@@ -139,11 +139,11 @@ int main(int argc, char *argv[]) {
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
 
   /*VALUE v;
-  v = sp_funcall(rb_mMath, "sin", 1, (VALUE)4);
+  v = rb_funcall(rb_mMath, "sin", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;
-  v = sp_funcall(rb_mMath, "cos", 1, (VALUE)4);
+  v = rb_funcall(rb_mMath, "cos", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;
-  v = sp_funcall(rb_mMath, "tan", 1, (VALUE)4);
+  v = rb_funcall(rb_mMath, "tan", 1, (VALUE)4);
   cout << "result: " << (int)v << endl;*/
 
   if (argc == 2) { // 2 args 'sapphire' and command
