@@ -52,7 +52,7 @@ Init_Numeric()
 }
 
 VALUE
-sp_float_new(double d)
+rb_float_new(double d)
 {
   // do some range checking here like is done in ruby's rb_float_new_inline
   // here we are replacing ruby's #define NEWOBJ_OF(obj,type,klass,flags) type *(obj) = (type*)rb_newobj_of(klass, flags)

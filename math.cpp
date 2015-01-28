@@ -9,7 +9,7 @@ math_sin(VALUE obj, VALUE args [])
   VALUE x = args[0];
 
   double xdouble = double((int)x);
-  VALUE float_obj = sp_float_new(sin(xdouble));
+  VALUE float_obj = rb_float_new(sin(xdouble));
   return float_obj;
 }
 

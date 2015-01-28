@@ -49,6 +49,50 @@ rb_setup_fake_str(struct RString *fake_str, const char *name, long len, int enc)
   return setup_fake_str(fake_str, name, len, enc); // TODO ruby does something with enc here
 }
 
+void
+must_not_null(const char *ptr)
+{
+  if (!ptr) {
+    // rb_raise(rb_eArgError, "NULL pointer given");
+    // TODO implement rb_raise, this method is important
+  }
+}
+
+VALUE
+str_new(VALUE klass, const char *ptr, long len)
+{
+  return str_new0(klass, ptr, len, 1);
+}
+
+VALUE
+rb_str_new(const char *ptr, long len)
+{
+  return str_new(rb_cString, ptr, len);
+}
+
+VALUE
+rb_usascii_str_new(const char *ptr, long len)
+{
+  VALUE str = rb_str_new(ptr, len);
+  // ENCODING_CODERANGE_SET(str, rb_usascii_encindex(), ENC_CODERANGE_7BIT);
+  return str;
+}
+
+VALUE
+rb_str_new_cstr(const char *ptr)
+{
+    must_not_null(ptr);
+    return rb_str_new(ptr, strlen(ptr));
+}
+
+VALUE
+rb_usascii_str_new_cstr(const char *ptr)
+{
+    VALUE str = rb_str_new_cstr(ptr);
+    // ENCODING_CODERANGE_SET(str, rb_usascii_encindex(), ENC_CODERANGE_7BIT);
+    return str;
+}
+
 VALUE
 rb_enc_str_new(const char *ptr, long len, int enc)
 {

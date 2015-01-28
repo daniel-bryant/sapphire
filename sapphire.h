@@ -33,6 +33,8 @@ enum ruby_special_consts {
 #define FIXNUM_FLAG RUBY_FIXNUM_FLAG
 #define SYMBOL_FLAG RUBY_SYMBOL_FLAG
 
+#define INT2FIX(i) (((VALUE)(i))<<1 | FIXNUM_FLAG)
+
 #define RTEST(v) !(((VALUE)(v) & ~Qnil) == 0)
 #define NIL_P(v) !((VALUE)(v) != Qnil)
 
@@ -184,15 +186,41 @@ struct RClass {
   struct method_table_wrapper *m_tbl_wrapper;
 };
 
+#define DBL2NUM(dbl)  rb_float_new(dbl)
+
 struct RString {
   struct RBasic basic;
   long len;
   char *ptr;
 };
 
+#define RARRAY_EMBED_LEN_MAX 3
+struct RArray {
+  struct RBasic basic;
+  union {
+    struct {
+      long len;
+      union {
+        long capa;
+        VALUE shared;
+      } aux;
+      const VALUE *ptr;
+    } heap;
+    const VALUE ary[RARRAY_EMBED_LEN_MAX];
+  } as;
+};
+
+// internal.h
 struct RFloat {
   struct RBasic basic;
   double float_value;
+};
+
+struct RHash {
+  struct RBasic basic;
+  id_value_map *ntbl;
+  int iter_lev;
+  const VALUE ifnone;
 };
 
 #define R_CAST(st)   (struct st*)
@@ -223,15 +251,21 @@ extern VALUE rb_mMath;
 
 extern VALUE rb_cBasicObject;
 extern VALUE rb_cObject;
+extern VALUE rb_cArray;
 extern VALUE rb_cModule;
 extern VALUE rb_cClass;
 extern VALUE rb_cFalseClass;
 extern VALUE rb_cFloat;
 extern VALUE rb_cFixnum;
+extern VALUE rb_cHash;
 extern VALUE rb_cNilClass;
 extern VALUE rb_cString;
 extern VALUE rb_cSymbol;
 extern VALUE rb_cTrueClass;
+
+/* array.cpp */
+VALUE rb_ary_new_capa(long capa);
+#define rb_ary_new2 rb_ary_new_capa
 
 /* class.cpp */
 void Init_class_hierarchy();
@@ -242,12 +276,15 @@ VALUE rb_define_module(const char *name);
 void rb_define_method(VALUE klass, const char *name, function_ptr func, int argc);
 void rb_define_module_function(VALUE module, const char *name, function_ptr func, int argc);
 
+/* hash.cpp */
+VALUE rb_hash_new();
+
 /* math.cpp */
 void Init_Math();
 
 /* numeric.cpp */
 void Init_Numeric();
-VALUE sp_float_new(double d);
+VALUE rb_float_new(double d);
 
 /* object.cpp */
 void Init_Object();
@@ -255,7 +292,10 @@ VALUE rb_class_real(VALUE cl);
 
 /* string.cpp */
 void Init_String();
+VALUE rb_usascii_str_new(const char *ptr, long len);
 VALUE rb_enc_str_new(const char *name, long len, int enc);
+VALUE rb_usascii_str_new_cstr(const char *ptr);
+#define rb_usascii_str_new2 rb_usascii_str_new_cstr
 
 /* symbol.cpp */
 ID rb_intern(const char *name);
