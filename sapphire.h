@@ -10,17 +10,26 @@ typedef uintptr_t VALUE;
 typedef uintptr_t ID;
 #define SIGNED_VALUE intptr_t
 
-enum ruby_special_consts {
-    RUBY_Qfalse = 0,		/* ...0000 0000 */
-    RUBY_Qtrue  = 2,		/* ...0000 0010 */
-    RUBY_Qnil   = 4,		/* ...0000 0100 */
-    RUBY_Qundef = 6,		/* ...0000 0110 */
+#define INT2FIX(i) (((VALUE)(i))<<1 | FIXNUM_FLAG)
 
-    RUBY_IMMEDIATE_MASK = 0x03,
+#define FIXNUM_P(f) (((int)(SIGNED_VALUE)(f))&FIXNUM_FLAG)
+#define IMMEDIATE_P(x) ((VALUE)(x) & IMMEDIATE_MASK)
+
+#define STATIC_SYM_P(x) (((VALUE)(x)&~((~(VALUE)0)<<RUBY_SPECIAL_SHIFT))==SYMBOL_FLAG)
+
+#define FLONUM_P(x) ((((int)(SIGNED_VALUE)(x))&FLONUM_MASK) == FLONUM_FLAG)
+
+enum ruby_special_consts {
+    RUBY_Qfalse = 0x00,		/* ...0000 0000 */
+    RUBY_Qtrue  = 0x14,		/* ...0001 0100 */
+    RUBY_Qnil   = 0x08,		/* ...0000 1000 */
+    RUBY_Qundef = 0x34,		/* ...0011 0100 */
+
+    RUBY_IMMEDIATE_MASK = 0x07,
     RUBY_FIXNUM_FLAG    = 0x01,	/* ...xxxx xxx1 */
-    RUBY_FLONUM_MASK    = 0x00,	/* any values ANDed with FLONUM_MASK cannot be FLONUM_FLAG */
-    RUBY_FLONUM_FLAG    = 0x02,
-    RUBY_SYMBOL_FLAG    = 0x0e,	/* ...0000 1110 */
+    RUBY_FLONUM_MASK    = 0x03,
+    RUBY_FLONUM_FLAG    = 0x02,	/* ...xxxx xx10 */
+    RUBY_SYMBOL_FLAG    = 0x0c,	/* ...0000 1100 */
 
     RUBY_SPECIAL_SHIFT  = 8
 };
@@ -31,17 +40,12 @@ enum ruby_special_consts {
 #define Qundef ((VALUE)RUBY_Qundef) /* undefined value for placeholder */
 #define IMMEDIATE_MASK RUBY_IMMEDIATE_MASK
 #define FIXNUM_FLAG RUBY_FIXNUM_FLAG
+#define FLONUM_MASK RUBY_FLONUM_MASK
+#define FLONUM_FLAG RUBY_FLONUM_FLAG
 #define SYMBOL_FLAG RUBY_SYMBOL_FLAG
-
-#define INT2FIX(i) (((VALUE)(i))<<1 | FIXNUM_FLAG)
 
 #define RTEST(v) !(((VALUE)(v) & ~Qnil) == 0)
 #define NIL_P(v) !((VALUE)(v) != Qnil)
-
-#define FIXNUM_P(f) (((int)(SIGNED_VALUE)(f))&FIXNUM_FLAG)
-#define IMMEDIATE_P(x) ((VALUE)(x) & IMMEDIATE_MASK)
-
-#define STATIC_SYM_P(x) (((VALUE)(x)&~((~(VALUE)0)<<RUBY_SPECIAL_SHIFT))==SYMBOL_FLAG)
 
 enum ruby_value_type {
     RUBY_T_NONE   = 0x00,
@@ -104,6 +108,8 @@ enum ruby_value_type {
 #define T_MASK   RUBY_T_MASK
 
 #define BUILTIN_TYPE(x) (int)(RBASIC(x)->flags & T_MASK)
+
+#define RB_FLOAT_TYPE_P(obj) (FLONUM_P(obj) || (!SPECIAL_CONST_P(obj) && BUILTIN_TYPE(obj) == T_FLOAT))
 
 #define FL_SINGLETON (((VALUE)1)<<12)
 #define FL_SET(x,f) (RBASIC(x)->flags |= f)
@@ -186,6 +192,8 @@ struct RClass {
   struct method_table_wrapper *m_tbl_wrapper;
 };
 
+VALUE rb_float_new_in_heap(double d);
+
 #define DBL2NUM(dbl)  rb_float_new(dbl)
 
 struct RString {
@@ -262,6 +270,37 @@ extern VALUE rb_cNilClass;
 extern VALUE rb_cString;
 extern VALUE rb_cSymbol;
 extern VALUE rb_cTrueClass;
+
+inline VALUE
+rb_class_of(VALUE obj)
+{
+  if (IMMEDIATE_P(obj)) {
+    if (FIXNUM_P(obj)) return rb_cFixnum;
+    if (FLONUM_P(obj)) return rb_cFloat;
+    if (obj == Qtrue)  return rb_cTrueClass;
+    if (STATIC_SYM_P(obj)) return rb_cSymbol;
+  } else if (!RTEST(obj)) {
+    if (obj == Qnil)   return rb_cNilClass;
+    if (obj == Qfalse) return rb_cFalseClass;
+  }
+  return RBASIC(obj)->klass;
+}
+
+inline int
+rb_type(VALUE obj)
+{
+  if (IMMEDIATE_P(obj)) {
+    if (FIXNUM_P(obj)) return T_FIXNUM;
+    if (FLONUM_P(obj)) return T_FLOAT;
+    if (obj == Qtrue)  return T_TRUE;
+    if (STATIC_SYM_P(obj)) return T_SYMBOL;
+    if (obj == Qundef) return T_UNDEF;
+  } else if (!RTEST(obj)) {
+    if (obj == Qnil)   return T_NIL;
+    if (obj == Qfalse) return T_FALSE;
+  }
+  return BUILTIN_TYPE(obj);
+}
 
 /* array.cpp */
 VALUE rb_ary_new_capa(long capa);
@@ -368,36 +407,5 @@ RCLASS_SET_SUPER(VALUE klass, VALUE super)
 }
 
 VALUE rb_setup_fake_str(struct RString *fake_str, const char *name, long len, int enc);
-
-inline VALUE
-rb_class_of(VALUE obj)
-{
-  if (IMMEDIATE_P(obj)) {
-    if (FIXNUM_P(obj)) return rb_cFixnum;
-    //if (FLONUM_P(obj)) return rb_cFloat;
-    if (obj == Qtrue)  return rb_cTrueClass;
-    if (STATIC_SYM_P(obj)) return rb_cSymbol;
-  } else if (!RTEST(obj)) {
-    if (obj == Qnil)   return rb_cNilClass;
-    if (obj == Qfalse) return rb_cFalseClass;
-  }
-  return RBASIC(obj)->klass;
-}
-
-inline int
-rb_type(VALUE obj)
-{
-  if (IMMEDIATE_P(obj)) {
-    if (FIXNUM_P(obj)) return T_FIXNUM;
-    //if (FLONUM_P(obj)) return T_FLOAT; // TODO we don't have floats defined yet
-    if (obj == Qtrue)  return T_TRUE;
-    if (STATIC_SYM_P(obj)) return T_SYMBOL;
-    if (obj == Qundef) return T_UNDEF;
-  } else if (!RTEST(obj)) {
-    if (obj == Qnil)   return T_NIL;
-    if (obj == Qfalse) return T_FALSE;
-  }
-  return BUILTIN_TYPE(obj);
-}
 
 #endif

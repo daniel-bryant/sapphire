@@ -4,6 +4,18 @@ VALUE rb_cFloat;
 VALUE rb_cFixnum;
 
 VALUE
+rb_float_new_in_heap(double d)
+{
+  RFloat *flt = new RFloat (); // TODO create and use NEWOBJ_OF macro
+  RBASIC_SET_CLASS(flt, rb_cFloat);
+  RBASIC(flt)->flags |= (T_FLOAT & T_MASK);
+
+  flt->float_value = d;
+  // OBJ_FREEZE(flt); // TODO implement this
+  return (VALUE)flt;
+}
+
+VALUE
 fix_plus(VALUE self, VALUE args [])
 {
   VALUE num2 = args[0];

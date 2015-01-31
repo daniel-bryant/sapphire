@@ -10,6 +10,7 @@
 #include "lexglobal.h"
 #include "token.h"
 #include "sapphire.h"
+#include "internal.h"
 
 using namespace std;
  
@@ -134,6 +135,10 @@ void run_sapphire_console() {
 
 int main(int argc, char *argv[]) {
   alpha_ruby_init();
+
+  /*VALUE fv = rb_float_new(3.14);
+  double dv = rb_float_value(fv);
+  cout << "original value should be 3.14 : " << dv << endl;*/
 
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
