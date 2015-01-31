@@ -139,6 +139,8 @@ int main(int argc, char *argv[]) {
   /*VALUE fv = rb_float_new(3.14);
   double dv = rb_float_value(fv);
   cout << "original value should be 3.14 : " << dv << endl;*/
+  cout << "Qtrue                 : " << (Qtrue) << endl;
+  cout << "nil.nil? (should eq ^): " << rb_funcall(Qnil, rb_intern("nil?"), 0) << endl;
 
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);

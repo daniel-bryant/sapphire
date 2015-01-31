@@ -47,6 +47,8 @@ enum ruby_special_consts {
 #define RTEST(v) !(((VALUE)(v) & ~Qnil) == 0)
 #define NIL_P(v) !((VALUE)(v) != Qnil)
 
+#define CLASS_OF(v) rb_class_of((VALUE)(v))
+
 enum ruby_value_type {
     RUBY_T_NONE   = 0x00,
 
@@ -237,6 +239,8 @@ struct RHash {
 #define RCLASS(obj)  (R_CAST(RClass)(obj))
 #define RMODULE(obj) RCLASS(obj)
 #define RSTRING(obj) (R_CAST(RString)(obj))
+
+VALUE rb_funcall(VALUE recv, ID mid, int n, ...);
 
 // this also goes in internal.h
 struct RBasicRaw {
