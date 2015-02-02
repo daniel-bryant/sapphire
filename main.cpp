@@ -142,8 +142,13 @@ int main(int argc, char *argv[]) {
   cout << "Qtrue                 : " << (Qtrue) << endl;
   cout << "nil.nil? (should eq ^): " << rb_funcall(Qnil, rb_intern("nil?"), 0) << endl;
   cout << endl;
-  cout << "Math.cos: " << rb_funcall(rb_mMath, rb_intern("cos"), 1, 47) << endl;
-  cout << "Math.tan: " << rb_funcall(rb_mMath, rb_intern("tan"), 1, 47) << endl;
+
+  VALUE flt = rb_funcall(rb_mMath, rb_intern("sin"), 1, 2);
+  cout << "Math.sin(2) => 0.909...: " << rb_float_value_inline(flt) << endl;
+  flt = rb_funcall(rb_mMath, rb_intern("cos"), 1, 2);
+  cout << "Math.cos(2) => -0.416..: " << rb_float_value_inline(flt) << endl;
+  flt = rb_funcall(rb_mMath, rb_intern("tan"), 1, 2);
+  cout << "Math.tan(2) => -2.185..: " << rb_float_value_inline(flt) << endl;
 
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
