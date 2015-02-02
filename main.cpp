@@ -141,6 +141,9 @@ int main(int argc, char *argv[]) {
   cout << "original value should be 3.14 : " << dv << endl;*/
   cout << "Qtrue                 : " << (Qtrue) << endl;
   cout << "nil.nil? (should eq ^): " << rb_funcall(Qnil, rb_intern("nil?"), 0) << endl;
+  cout << endl;
+  cout << "Math.cos: " << rb_funcall(rb_mMath, rb_intern("cos"), 1, 47) << endl;
+  cout << "Math.tan: " << rb_funcall(rb_mMath, rb_intern("tan"), 1, 47) << endl;
 
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);

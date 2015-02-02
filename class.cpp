@@ -62,7 +62,7 @@ rb_singleton_class_attached(VALUE klass, VALUE obj)
     //if (!RCLASS_IV_TBL(klass)) {
       //RCLASS_IV_TBL(klass) = st_init_numtable();
     //}
-    rb_st_insert_id_and_value(klass, &(RCLASS_EXT(klass)->iv_tbl), rb_intern("id__attached__"), obj);
+    rb_st_insert_id_and_value(klass, &(RCLASS_IV_TBL(klass)), rb_intern("id__attached__"), obj);
   //}
 }
 
@@ -215,16 +215,47 @@ rb_define_private_method(VALUE klass, const char *name, function_ptr func, int a
   rb_add_method_cfunc(klass, rb_intern(name), func, argc, NOEX_PRIVATE);
 }
 
+VALUE
+special_singleton_class_of(VALUE obj)
+{
+  if (obj == Qnil) return rb_cNilClass;
+  if (obj == Qfalse) return rb_cFalseClass;
+  if (obj == Qtrue) return rb_cTrueClass;
+  return Qnil;
+}
 
 VALUE
 singleton_class_of(VALUE obj)
 {
   VALUE klass;
 
+  if (FIXNUM_P(obj) || FLONUM_P(obj) || SYMBOL_P(obj)) {
+    rb_raise("can't define singleton");
+  }
+  if (SPECIAL_CONST_P(obj)) {
+    klass = special_singleton_class_of(obj);
+    if (NIL_P(klass))
+      rb_bug("unknown immediate");
+    return klass;
+  } else {
+    int type = BUILTIN_TYPE(obj); //enum ruby_value_type type = BUILTIN_TYPE(obj);
+    if (type == T_FLOAT || type == T_BIGNUM) {
+      rb_raise("can't define singleton");
+    }
+  }
+
   klass = RBASIC(obj)->klass;
-  if (true) {
+  if (!(FL_TEST(klass, FL_SINGLETON) && rb_ivar_get(klass, rb_intern("id__attached__")) == obj)) {
     klass = rb_make_metaclass(obj);
   }
+
+  /*if (OBJ_TAINTED(obj)) {
+    OBJ_TAINT(klass);
+  }
+  else {
+    FL_UNSET(klass, FL_TAINT);
+  }
+  if (OBJ_FROZEN(obj)) OBJ_FREEZE_RAW(klass);*/
 
   return klass;
 }

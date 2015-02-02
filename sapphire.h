@@ -16,6 +16,8 @@ typedef uintptr_t ID;
 #define IMMEDIATE_P(x) ((VALUE)(x) & IMMEDIATE_MASK)
 
 #define STATIC_SYM_P(x) (((VALUE)(x)&~((~(VALUE)0)<<RUBY_SPECIAL_SHIFT))==SYMBOL_FLAG)
+#define DYNAMIC_SYM_P(x) (!SPECIAL_CONST_P(x) && BUILTIN_TYPE(x) == (T_SYMBOL))
+#define SYMBOL_P(x) (STATIC_SYM_P(x)||DYNAMIC_SYM_P(x))
 
 #define FLONUM_P(x) ((((int)(SIGNED_VALUE)(x))&FLONUM_MASK) == FLONUM_FLAG)
 
@@ -240,6 +242,12 @@ struct RHash {
 #define RMODULE(obj) RCLASS(obj)
 #define RSTRING(obj) (R_CAST(RString)(obj))
 
+#define SPECIAL_CONST_P(x) (IMMEDIATE_P(x) || !RTEST(x))
+
+#define FL_ABLE(x) (!SPECIAL_CONST_P(x) && BUILTIN_TYPE(x) != T_NODE)
+#define FL_TEST_RAW(x,f) (RBASIC(x)->flags&(f))
+#define FL_TEST(x,f) (FL_ABLE(x)?FL_TEST_RAW((x),(f)):0)
+
 VALUE rb_funcall(VALUE recv, ID mid, int n, ...);
 
 // this also goes in internal.h
@@ -257,6 +265,9 @@ extern id_value_map rb_global_tbl;
 extern ID autoload, classpath, tmp_classpath, classid;
 
 extern std::vector<RString *> global_symbols;
+
+void rb_raise(const char *fmt);
+void rb_bug(const char *fmt);
 
 extern VALUE rb_mKernel;
 extern VALUE rb_mMath;
@@ -387,6 +398,7 @@ inline VALUE rb_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
 
 /* in the ruby source, this is in internal.h */
 #define RCLASS_EXT(c) (RCLASS(c)->ptr)
+#define RCLASS_IV_TBL(c) (RCLASS_EXT(c)->iv_tbl)
 #define RCLASS_M_TBL_WRAPPER(c) (RCLASS(c)->m_tbl_wrapper)
 #define RCLASS_CONST_TBL(c) (RCLASS_EXT(c)->const_tbl)
 inline void
@@ -411,5 +423,7 @@ RCLASS_SET_SUPER(VALUE klass, VALUE super)
 }
 
 VALUE rb_setup_fake_str(struct RString *fake_str, const char *name, long len, int enc);
+
+#include "intern.h"
 
 #endif

@@ -17,6 +17,13 @@ Init_var_tables()
 }
 
 VALUE
+rb_ivar_get(VALUE obj, ID id)
+{
+  // TODO this is obviously bare bones
+  return RCLASS_IV_TBL(obj)[id];
+}
+
+VALUE
 rb_const_get_0(VALUE klass, ID id)
 {
   // TODO fill this in

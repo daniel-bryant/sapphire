@@ -36,7 +36,7 @@ Init_Math()
 
   rb_define_const(rb_mMath, "THIRTYSEVEN", (VALUE)37);
 
-  rb_define_module_function(rb_mMath, "sin", math_sin, 1);
+  //rb_define_module_function(rb_mMath, "sin", math_sin, 1);
   rb_define_module_function(rb_mMath, "cos", math_cos, 1);
   rb_define_module_function(rb_mMath, "tan", math_tan, 1);
 }
