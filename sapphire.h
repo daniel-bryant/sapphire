@@ -386,16 +386,6 @@ inline void alpha_ruby_init()
   Init_String();
 }
 
-inline VALUE rb_funcall(VALUE receiver, const char *name, int argc, VALUE arg)
-{
-  /* get class of receiver */
-
-  // VALUE retval = ((SClass *) receiver)->rb_call_method(receiver, name, arg);
-  VALUE retval = 0;
-
-  return retval;
-}
-
 /* in the ruby source, this is in internal.h */
 #define RCLASS_EXT(c) (RCLASS(c)->ptr)
 #define RCLASS_IV_TBL(c) (RCLASS_EXT(c)->iv_tbl)
