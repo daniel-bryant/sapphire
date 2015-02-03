@@ -195,6 +195,7 @@ struct RClass {
   rb_classext_t *ptr;
   struct method_table_wrapper *m_tbl_wrapper;
 };
+#define RCLASS_SUPER(c) RCLASS(c)->super
 
 VALUE rb_float_new_in_heap(double d);
 
@@ -374,6 +375,7 @@ typedef enum {
   NOEX_PRIVATE   = 0x02
 } rb_method_flag_t;
 void rb_add_method_cfunc(VALUE klass, ID mid, function_ptr func, int argc, rb_method_flag_t noex);
+function_ptr rb_method_entry(VALUE klass, ID id, VALUE *define_class_ptr);
 
 inline void alpha_ruby_init()
 {

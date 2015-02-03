@@ -103,10 +103,10 @@ Init_class_hierarchy()
   rb_cClass = boot_defclass("Class", rb_cModule);
 
   rb_const_set(rb_cObject, rb_intern("BasicObject"), rb_cBasicObject);
-  // RBASIC_SET_CLASS(rb_cClass, rb_cClass);
-  // RBASIC_SET_CLASS(rb_cModule, rb_cClass);
-  // RBASIC_SET_CLASS(rb_cObject, rb_cClass);
-  // RBASIC_SET_CLASS(rb_cBasicObject, rb_cClass);
+  RBASIC_SET_CLASS(rb_cClass, rb_cClass);
+  RBASIC_SET_CLASS(rb_cModule, rb_cClass);
+  RBASIC_SET_CLASS(rb_cObject, rb_cClass);
+  RBASIC_SET_CLASS(rb_cBasicObject, rb_cClass);
 }
 
 VALUE

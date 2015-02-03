@@ -6,6 +6,14 @@ VALUE rb_cNilClass;
 VALUE rb_cTrueClass;
 
 VALUE
+rb_obj_equal(VALUE obj1, VALUE args [])
+{
+  VALUE obj2 = args[0];
+  if (obj1 == obj2) return Qtrue;
+  return Qfalse;
+}
+
+VALUE
 rb_class_real(VALUE cl)
 {
   // TODO uncomment this and make it work. returning cl should work for now
@@ -88,6 +96,9 @@ void
 Init_Object()
 {
   Init_class_hierarchy();
+
+  rb_define_method(rb_cBasicObject, "==", rb_obj_equal, 1);
+  rb_define_method(rb_cBasicObject, "equal?", rb_obj_equal, 1);
 
   rb_mKernel = rb_define_module("Kernel");
 

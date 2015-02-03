@@ -42,10 +42,10 @@ rb_search_method_entry(VALUE recv, ID mid, VALUE *defined_class_ptr)
 
   if (!klass) {
     // TODO replace this
+    printf("\nno class found!!\n");
     throw std::string("error rb_search_method_entry - recv has no class");
   }
-  //return rb_method_entry(klass, mid, defined_class_ptr);
-  return RCLASS(klass)->m_tbl_wrapper->tbl[mid];
+  return rb_method_entry(klass, mid, defined_class_ptr);
 }
 
 VALUE

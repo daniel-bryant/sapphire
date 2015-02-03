@@ -150,6 +150,10 @@ int main(int argc, char *argv[]) {
   flt = rb_funcall(rb_mMath, rb_intern("tan"), 1, 2);
   cout << "Math.tan(2) => -2.185..: " << rb_float_value_inline(flt) << endl;
 
+  cout << "BasicObject.equal?(BasicObject) => " << Qtrue << ": " << rb_funcall(rb_cBasicObject, rb_intern("equal?"), 1, rb_cBasicObject) << endl;
+  cout << "nil.equal?(nil) => " << Qtrue << ": " << rb_funcall(Qnil, rb_intern("equal?"), 1, Qnil) << endl;
+  cout << "Math == nil => " << Qfalse << ": " << rb_funcall(rb_mMath, rb_intern("=="), 1, Qnil) << endl;
+
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
 
