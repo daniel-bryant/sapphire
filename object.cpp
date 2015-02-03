@@ -14,6 +14,20 @@ rb_obj_equal(VALUE obj1, VALUE args [])
 }
 
 VALUE
+rb_obj_not(VALUE obj, VALUE args [])
+{
+  return RTEST(obj) ? Qfalse : Qtrue;
+}
+
+VALUE
+rb_obj_not_equal(VALUE obj1, VALUE args [])
+{
+  VALUE obj2 = args[0];
+  if (obj1 != obj2) return Qtrue;
+  return Qfalse;
+}
+
+VALUE
 rb_class_real(VALUE cl)
 {
   // TODO uncomment this and make it work. returning cl should work for now
@@ -21,6 +35,12 @@ rb_class_real(VALUE cl)
   //  cl = RCLASS_SUPER(cl);
   //}
   return cl;
+}
+
+VALUE
+rb_obj_dummy(VALUE obj, VALUE args [])
+{
+  return Qnil;
 }
 
 VALUE
@@ -97,8 +117,15 @@ Init_Object()
 {
   Init_class_hierarchy();
 
+  rb_define_private_method(rb_cBasicObject, "initialize", rb_obj_dummy, 0);
   rb_define_method(rb_cBasicObject, "==", rb_obj_equal, 1);
   rb_define_method(rb_cBasicObject, "equal?", rb_obj_equal, 1);
+  rb_define_method(rb_cBasicObject, "!", rb_obj_not, 0);
+  rb_define_method(rb_cBasicObject, "!=", rb_obj_not_equal, 1);
+
+  rb_define_private_method(rb_cBasicObject, "singleton_method_added", rb_obj_dummy, 1);
+  rb_define_private_method(rb_cBasicObject, "singleton_method_removed", rb_obj_dummy, 1);
+  rb_define_private_method(rb_cBasicObject, "singleton_method_undefined", rb_obj_dummy, 1);
 
   rb_mKernel = rb_define_module("Kernel");
 

@@ -154,6 +154,12 @@ int main(int argc, char *argv[]) {
   cout << "nil.equal?(nil) => " << Qtrue << ": " << rb_funcall(Qnil, rb_intern("equal?"), 1, Qnil) << endl;
   cout << "Math == nil => " << Qfalse << ": " << rb_funcall(rb_mMath, rb_intern("=="), 1, Qnil) << endl;
 
+  cout << "!Math => " << Qfalse << ": " << rb_funcall(rb_mMath, rb_intern("!"), 0) << endl;
+  cout << "!nil => " << Qtrue << ": " << rb_funcall(Qnil, rb_intern("!"), 0) << endl;
+  cout << "!true => " << Qfalse << ": " << rb_funcall(Qtrue, rb_intern("!"), 0) << endl;
+  cout << "!false => " << Qtrue << ": " << rb_funcall(Qfalse, rb_intern("!"), 0) << endl;
+  cout << "Math != Math => " << Qfalse << ": " << rb_funcall(rb_mMath, rb_intern("!="), 1, rb_mMath) << endl;
+
   VALUE foobar = rb_const_get(rb_mMath, rb_intern("THIRTYSEVEN"));
   printf("Math.THIRTYSEVEN: %d\n", (int)foobar);
 
