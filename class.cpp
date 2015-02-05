@@ -9,7 +9,10 @@ void
 rb_class_subclass_add(VALUE super, VALUE klass)
 {
   if (super && super != Qundef) {
-    RCLASS_EXT(super)->subclasses.push_back(klass);
+    if (!(RCLASS_EXT(super)->subclasses)) {
+      RCLASS_EXT(super)->subclasses = new std::vector<VALUE> ();
+    }
+    RCLASS_EXT(super)->subclasses->push_back(klass);
     RCLASS_EXT(klass)->parent_subclasses = &RCLASS_EXT(super)->subclasses;
   }
 }
@@ -18,10 +21,10 @@ void
 rb_class_remove_from_super_subclasses(VALUE klass)
 {
   if (RCLASS_EXT(klass)->parent_subclasses) {
-    std::vector<VALUE> *parent_subclasses = RCLASS_EXT(klass)->parent_subclasses;
+    std::vector<VALUE> **parent_subclasses = RCLASS_EXT(klass)->parent_subclasses;
     std::vector<VALUE>::iterator it;
-    it = std::find(parent_subclasses->begin(), parent_subclasses->end(), klass);
-    parent_subclasses->erase(it);
+    it = std::find((*parent_subclasses)->begin(), (*parent_subclasses)->end(), klass);
+    (*parent_subclasses)->erase(it);
   }
 
   RCLASS_EXT(klass)->parent_subclasses = NULL;
@@ -37,10 +40,20 @@ class_alloc(VALUE flags, VALUE klass)
   RBASIC_SET_CLASS(obj, klass);
   RBASIC(obj)->flags |= (flags & T_MASK);
   RCLASS(obj)->ptr = new rb_classext_t ();
-  // FILL THIS IN
-  //
-  //
+  RCLASS_IV_TBL(obj) = 0;
+  RCLASS_CONST_TBL(obj) = 0;
+  RCLASS_M_TBL_WRAPPER(obj) = 0;
+  RCLASS_SET_SUPER((VALUE)obj, 0);
+  //RCLASS_ORIGIN(obj) = (VALUE)obj;
+  //RCLASS_IV_INDEX_TBL(obj) = 0;
 
+  RCLASS_EXT(obj)->subclasses = NULL;
+  RCLASS_EXT(obj)->parent_subclasses = NULL;
+  RCLASS_EXT(obj)->module_subclasses = NULL;
+  //RCLASS_SERIAL(obj) = rb_next_class_serial();
+
+  //RCLASS_REFINED_CLASS(obj) = Qnil;
+  RCLASS_EXT(obj)->allocator = 0;
   return (VALUE)obj;
 }
 
@@ -58,12 +71,12 @@ rb_class_boot(VALUE super)
 void
 rb_singleton_class_attached(VALUE klass, VALUE obj)
 {
-  //if (FL_TEST(klass, FL_SINGLETON)) {
-    //if (!RCLASS_IV_TBL(klass)) {
-      //RCLASS_IV_TBL(klass) = st_init_numtable();
-    //}
-    rb_st_insert_id_and_value(klass, &(RCLASS_IV_TBL(klass)), rb_intern("id__attached__"), obj);
-  //}
+  if (FL_TEST(klass, FL_SINGLETON)) {
+    if (!RCLASS_IV_TBL(klass)) {
+      RCLASS_IV_TBL(klass) = new id_value_map (); // st_init_numtable();
+    }
+    rb_st_insert_id_and_value(klass, RCLASS_IV_TBL(klass), rb_intern("id__attached__"), obj);
+  }
 }
 
 #define METACLASS_OF(k) RBASIC(k)->klass

@@ -164,17 +164,17 @@ typedef unsigned long long int rb_serial_t;
 typedef VALUE (*rb_alloc_func_t)(VALUE);
 
 struct rb_classext_struct {
-  id_value_map iv_index_tbl;
-  id_value_map iv_tbl; // TODO make this a pointer maybe
-  id_value_map const_tbl;
-  std::vector<VALUE> subclasses;
-  std::vector<VALUE> *parent_subclasses;
+  id_value_map *iv_index_tbl;
+  id_value_map *iv_tbl;
+  id_value_map *const_tbl;
+  std::vector<VALUE> *subclasses;
+  std::vector<VALUE> **parent_subclasses;
   /**
    * In the case that this is an `ICLASS`, `module_subclasses` points to the link
    * in the module's `subclasses` list that indicates that the klass has been
    * included. Hopefully that makes sense.
    */
-  std::vector<VALUE> *module_subclasses;
+  std::vector<VALUE> **module_subclasses;
   rb_serial_t class_serial;
   VALUE origin;
   VALUE refined_class;
@@ -182,7 +182,7 @@ struct rb_classext_struct {
 };
 
 struct method_table_wrapper {
-  std::map<VALUE, function_ptr> tbl;
+  std::map<VALUE, function_ptr> *tbl;
   size_t serial;
 };
 
@@ -398,7 +398,7 @@ RCLASS_M_TBL_INIT(VALUE c)
 {
   struct method_table_wrapper *wrapper;
   wrapper = new method_table_wrapper ();
-  //wrapper->tbl = st_init_numtable();
+  wrapper->tbl = new std::map<VALUE, function_ptr> (); // st_init_numtable();
   wrapper->serial = 0;
   RCLASS_M_TBL_WRAPPER(c) = wrapper;
 }

@@ -4,14 +4,14 @@ void
 rb_add_method_cfunc(VALUE klass, ID mid, function_ptr func, int argc, rb_method_flag_t noex)
 {
   // TODO fill in this method
-  RCLASS(klass)->m_tbl_wrapper->tbl[mid] = func;
+  (*RCLASS(klass)->m_tbl_wrapper->tbl)[mid] = func;
 }
 
 function_ptr
 lookup_method_table(VALUE klass, ID id)
 {
-  if (RCLASS(klass)->m_tbl_wrapper->tbl.count(id)) {
-    return RCLASS(klass)->m_tbl_wrapper->tbl.at(id);
+  if (RCLASS(klass)->m_tbl_wrapper->tbl->count(id)) {
+    return RCLASS(klass)->m_tbl_wrapper->tbl->at(id);
   } else {
     return 0;
   }

@@ -20,14 +20,14 @@ VALUE
 rb_ivar_get(VALUE obj, ID id)
 {
   // TODO this is obviously bare bones
-  return RCLASS_IV_TBL(obj)[id];
+  return (*RCLASS_IV_TBL(obj))[id];
 }
 
 VALUE
 rb_const_get_0(VALUE klass, ID id)
 {
   // TODO fill this in
-  return RCLASS_CONST_TBL(klass)[id];
+  return (*RCLASS_CONST_TBL(klass))[id];
 }
 
 VALUE
@@ -39,10 +39,13 @@ rb_const_get(VALUE klass, ID id)
 void
 rb_const_set(VALUE klass, ID id, VALUE val)
 {
+  if (!RCLASS_CONST_TBL(klass)) {
+    RCLASS_CONST_TBL(klass) = new id_value_map (); // st_init_numtable();
+  }
   // TODO obviously fill this method in, but this is thei MOST basic implementation for now.
   // This is equivalent to 'st_insert(RCLASS_CONST_TBL(klass), (st_data_t)id, (st_data_t)ce);'
   // in Ruby's source.
-  RCLASS_CONST_TBL(klass)[id] = val;
+  (*RCLASS_CONST_TBL(klass))[id] = val;
 }
 
 void
@@ -58,15 +61,21 @@ rb_define_const(VALUE klass, const char *name, VALUE val)
 bool
 rb_const_defined(VALUE klass, VALUE id)
 {
-  id_value_map::iterator it = RCLASS_EXT(klass)->const_tbl.find(id);
-  return it != RCLASS_EXT(klass)->const_tbl.end();
+  if (RCLASS_EXT(klass)->const_tbl) {
+    id_value_map::iterator it = RCLASS_EXT(klass)->const_tbl->find(id);
+    return it != RCLASS_EXT(klass)->const_tbl->end();
+  }
+  return false;
 }
 
 void
 rb_name_class(VALUE klass, ID id)
 {
-  //TODO fully implement this when we have ivars
-  RCLASS_EXT(klass)->iv_tbl[classid] = id;
+  //TODO create and use rb_ivar_set
+  if (!(RCLASS_EXT(klass)->iv_tbl)) {
+    RCLASS_EXT(klass)->iv_tbl = new id_value_map ();
+  }
+  (*RCLASS_EXT(klass)->iv_tbl)[classid] = id;
 }
 
 int rb_st_insert_id_and_value(VALUE obj, id_value_map *tbl, ID key, VALUE value)
